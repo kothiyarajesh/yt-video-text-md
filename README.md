@@ -16,6 +16,12 @@
 To install the latest version directly from the GitHub repository, use:
 
 ```bash
+pip install yt-video-text-md
+```
+
+Or
+
+```bash
 pip install git+https://github.com/kothiyarajesh/yt-video-text-md.git
 ```
 
@@ -37,12 +43,6 @@ pip install git+https://github.com/kothiyarajesh/yt-video-text-md.git
 
     ```bash
     python setup.py install
-    ```
-
-4. If installing from source, make sure to install the dependencies manually:
-
-    ```bash
-    pip install -r requirements.txt
     ```
 
 ## Usage
