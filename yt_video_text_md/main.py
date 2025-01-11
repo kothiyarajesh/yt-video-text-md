@@ -1,4 +1,5 @@
 import os
+import sys
 import logging
 import asyncio
 import argparse
@@ -126,4 +127,9 @@ async def main():
     await yt_md.save_video_to_md()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    if "ipykernel" in sys.modules:
+        # We're running in Jupyter or Colab, so use await directly
+        asyncio.ensure_future(main())
+    else:
+        # We're running in a standard Python script, so use asyncio.run() to start the event loop
+        asyncio.run(main())  # Standard way to run async function
