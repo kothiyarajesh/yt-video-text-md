@@ -26,7 +26,6 @@ class YTVideoTextMD:
         self.video_list = []
         try:
             self.video_list = self.get_video_ids_from_url(url)
-            asyncio.run(self.save_video_to_md())
         except Exception as e:
             _logger.error(f"An error occurred: {e}")
 
@@ -116,9 +115,15 @@ def parse_args():
 
     return parser.parse_args()
 
-def main():
+async def main():
     args = parse_args()
-    YTVideoTextMD(url=args.url, output_dir=args.directory, default_md_file_name=args.filename, )
+    yt_md = YTVideoTextMD(
+        url=args.url,
+        output_dir=args.directory,
+        default_md_file_name=args.filename,
+        audio_output_dir=args.audio_directory
+    )
+    await yt_md.save_video_to_md()
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
