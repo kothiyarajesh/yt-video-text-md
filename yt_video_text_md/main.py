@@ -1,11 +1,13 @@
 import os
 import logging
-import argparse
-from pytube import Playlist, YouTube
-from tqdm import tqdm
-from yt_video_text_md import YouTubeTranscriptProcessor
-from yt_video_text_md import AudioTranscriber
 import asyncio
+import argparse
+import requests
+from tqdm import tqdm
+from bs4 import BeautifulSoup
+from pytube import Playlist, YouTube
+from yt_video_text_md import AudioTranscriber
+from yt_video_text_md import YouTubeTranscriptProcessor
 
 logging.basicConfig(
     level=logging.INFO,
@@ -28,18 +30,40 @@ class YTVideoTextMD:
         except Exception as e:
             _logger.error(f"An error occurred: {e}")
 
+    def get_youtube_video_title(self, video_id):
+        try:
+            # Construct the YouTube video URL
+            url = f"https://www.youtube.com/watch?v={video_id}"
+            # Send a GET request to the URL
+            response = requests.get(url)
+            # Parse the HTML content of the page
+            soup = BeautifulSoup(response.text, 'html.parser')
+            # Find the title tag in the HTML
+            title_tag = soup.find("meta", property="og:title")
+            if title_tag:
+                return title_tag["content"]
+            else:
+                return ""
+        except:
+            return ""
+
+    def get_yt_video_title(self, video, index):
+        title = video._title
+        if not title:
+            title = self.get_youtube_video_title(video.video_id)
+        return "Video-%s: %s"%((index+1), title)
+
     def get_video_ids_from_url(self, url: str) -> list:
         video_list = []
 
         try:
             if 'playlist' in url:
                 playlist = Playlist(url)
-                video_list = [(video.video_id, video.title, index + 1) 
-                              for index, video in enumerate(playlist.videos)]
+                video_list = [(video.video_id, self.get_yt_video_title(video, index), index + 1) for index, video in enumerate(playlist.videos)]
             elif 'watch?v=' in url:
                 yt = YouTube(url)
                 video_id = url.split('watch?v=')[-1]
-                video_list = [(video_id, yt.title, 1)]
+                video_list = [(video_id, self.get_yt_video_title(yt, 0), 1)]
 
             if not video_list:
                 raise ValueError("No valid video or playlist found in the URL.")
